@@ -1,0 +1,32 @@
+version: '2'
+networks:
+  test-net:
+  
+services:
+  postgresql-test:
+    image: 'postgres:13'
+    container_name: postgresql
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRES_USER=test
+      - POSTGRES_PASSWORD=pwd0123456789
+      - POSTGRES_DB=test
+    networks:
+      - test-net
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+      
+  nlp-test:
+    build:
+      context: nlp/
+      dockerfile: Dockerfile
+    container_name: nlp
+    depends_on:
+      - postgresql-test
+    ports:
+      - "5000:5000"
+    networks:
+      - test-net
+    restart: unless-stopped
