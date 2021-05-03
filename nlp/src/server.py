@@ -1,16 +1,19 @@
 from flask import Flask, jsonify, request
 import pandas as pd
-from pyvi import ViTokenizer
+
 import emoji
 import re
 
-import logging as logger
-logger.basicConfig(
+from underthesea import word_tokenize
+
+import logging
+logging.basicConfig(
     filename='runtime.log',
     filemode='w',
-    level=logger.DEBUG,
-    format= '[%(asctime)s] {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s',
+    level=logging.DEBUG,
+    format='[%(asctime)s] {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s',
 )
+
 app = Flask(__name__)
 
 
@@ -23,23 +26,35 @@ def hello_world():
 
 @app.route('/nlp-test', methods=['GET'])
 def homework_nlp():
-    logger.debug("do day roi ne")
+    logging.debug("do day roi ne")
     df = pd.read_excel('./data/train_dataset.xlsx', usecols=["id", "comment", "updated_sentiment_2"])
-    sentence = df["comment"][13]
-    print(sentence)
-    clean = remove_special_text(sentence)
-    print(clean)
-    tokens = ViTokenizer.tokenize(clean)
-    print(tokens)
-    demojize = emoji.demojize(tokens)
-    print(demojize)
+
+    for i in range(0, 10):
+        print("sentence", i)
+        sentence = df["comment"][i]
+        print(sentence)
+        demojize = emoji.demojize(sentence)
+        clean = remove_special_text(demojize)
+        print("clean", clean)
+        w_tokens = word_tokenize(clean)
+        if "," in w_tokens:
+            w_tokens.remove(",")
+        print("w_tokens", w_tokens)
+
+
+        # demojize = []
+        # for w in range(len(w_tokens)):
+        #     demojize.append(emoji.demojize(w_tokens[w]))
+        # demojize = emoji.demojize(w_tokens)
+        # print("demojize", demojize)
 
 
 def remove_special_text(text):
-    return re.sub(r'(http\S+)|(@\S+)|RT|\#|!|:|\.|,', ' ', text)
+    return re.sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", ' ', text)
+
 
 # def tokenize_sentences(sentences):
-#     """
+#     """ọec
 #     Tokenize or word segment sentences
 #     :param sentences: input sentences
 #     :return: tokenized sentence
@@ -49,6 +64,7 @@ def remove_special_text(text):
 #         tokens = tokenizer.tokenize(sent)
 #         tokens_list.append(tokens)
 #     return tokens_list
+
 
 if __name__ == '__main__':
     homework_nlp()

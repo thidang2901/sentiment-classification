@@ -2,3 +2,6 @@ Flask==1.1.1
 pandas==1.2.1
 xlrd==2.0.1
 openpyxl==3.0.7
+pyvi==0.1
+vinorm==2.0.7
+emoji==1.2.0
