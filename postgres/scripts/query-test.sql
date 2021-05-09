@@ -60,6 +60,28 @@ from (
 		) as merged_last_dates
 	) as calc_period
 ) as find_longest_period
+;
 
 --5) Write a query that returns each employee and for each row/employee include the greatest number of employees that worked for the company at any time during their tenure and the first date that maximum was reached. Extra points for not using cursors
-
+with count_employees as (
+	select 
+		id, hiredate, terminationdate,
+		(select count(*) from employees e2 where e2.hiredate <= e.hiredate) - (select count(*) from employees e2 where e2.terminationdate <= e.hiredate) as number_of_employees
+	from 
+		employees e
+), maximum_employees as (
+	select
+		max(count_employees.number_of_employees) as maximum
+	from count_employees
+)
+(
+	select 
+		count_employees.id, count_employees.hiredate as first_date_reached, count_employees.number_of_employees,
+		CASE
+		    WHEN count_employees.number_of_employees = maximum_employees.maximum then 'max reached'
+		    ELSE NULL
+		END AS found_maximum_reached
+	from 
+		count_employees, 
+		maximum_employees
+)
